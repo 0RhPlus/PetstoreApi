@@ -1,7 +1,8 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PetstoreApi.Builder.Common;
+using PetstoreApi.Client;
 using PetstoreApi.Domain;
 using PetstoreApi.DTO;
 using PetstoreApi.Service;
@@ -13,12 +14,12 @@ namespace PetstoreApi.Tests.Users
     public class PetsTests
     {
 		[Fact]
-		public async Task PostUser_ShouldCreateUser()
+		public async Task PostPet_ShouldCreatePet()
 		{
 			// arrange
 			var postBody = Build.PetDto
 				.WithCategory(c => c.WithId(Generator.RandomInt()).WithName("category name"))
-				.WithPhotoUrls(new[]{ "photo url" })
+				.WithPhotoUrls(new[] { "photo url" })
 				.WithTags(t => t.WithId(Generator.RandomInt()).WithName("tag name"))
 				.WithStatus(Status.AVAILABLE)
 				.Build();
@@ -29,10 +30,26 @@ namespace PetstoreApi.Tests.Users
 			// assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-			var result = JsonConvert.DeserializeObject<PetDto>(
-				await response.Content.ReadAsStringAsync());
+			var pet = await response.Content.ReadAsJsonAsync<PetDto>();
 
-			Assert.Equal(-9223372036854775808, result.Id);
+			Assert.Equal(-9223372036854775808, pet.Id);
+		}
+
+		[Theory]
+		[InlineData(Status.AVAILABLE)]
+		[InlineData(Status.PENDING)]
+		[InlineData(Status.SOLD)]
+		public async Task GetPets_ByStatus_ShouldReturnPetsList(string status)
+		{
+			// arrange & act
+			var response = await PetsService.GetByStatus(status);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+			var listOfPets = await response.Content.ReadAsJsonAsync<List<PetDto>>();
+
+			Assert.All(listOfPets, x => Assert.Contains(status, x.Status));
 		}
 	}
 }

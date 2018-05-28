@@ -16,7 +16,7 @@ namespace PetstoreApi.Builder
 			dto.Status = "available";
 		}
 
-		public PetDtoBuilder WithId(int id)
+		public PetDtoBuilder WithId(long id)
 		{
 			dto.Id = id;
 			return this;

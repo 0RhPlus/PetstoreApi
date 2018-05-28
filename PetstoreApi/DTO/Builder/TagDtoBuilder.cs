@@ -5,7 +5,7 @@ namespace PetstoreApi.Builder
 {
     public partial class TagDtoBuilder : Builder<TagDto>
     {
-		public TagDtoBuilder WithId(int id)
+		public TagDtoBuilder WithId(long id)
 		{
 			dto.Id = id;
 			return this;
