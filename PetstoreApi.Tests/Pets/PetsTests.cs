@@ -9,7 +9,7 @@ using PetstoreApi.Service;
 using PetstoreApi.Utils;
 using Xunit;
 
-namespace PetstoreApi.Tests.Users
+namespace PetstoreApi.Tests.Pets
 {
     public class PetsTests
     {
@@ -50,6 +50,17 @@ namespace PetstoreApi.Tests.Users
 			var listOfPets = await response.Content.ReadAsJsonAsync<List<PetDto>>();
 
 			Assert.All(listOfPets, x => Assert.Contains(status, x.Status));
+		}
+
+		[Theory]
+		[InlineData(567934457694)]
+		public async Task GetPets_WithInvalidId_ShouldReturn404(long invalidId)
+		{
+			// arrange & act
+			var response = await PetsService.GetById(invalidId);
+
+			// assert
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 		}
 	}
 }
